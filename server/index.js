@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import todosRoutes from './routes/todos.js'
 
 const app = express();
 dotenv.config();
@@ -11,6 +12,7 @@ app.listen(PORT)
 app.use(express.json({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use('/todos', todosRoutes)
 const mongodb = "mongodb+srv://matibyte:matibyte@nodetuts.clihy.mongodb.net/todos-database?retryWrites=true&w=majority"
 
 app.get('/', (req, res) => {

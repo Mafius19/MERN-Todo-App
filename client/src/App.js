@@ -5,6 +5,13 @@ import { createTodo, readTodos } from "./functions";
 function App() {
   const [todo, setTodo] = useState({ title: '', content: '' });
   const [todos, setTodos] = useState(null);
+  const [currentId, setCurrentId] = useState(0);
+
+  useEffect(() => {
+    let currentTodo = currentId!=0?todos.find(todo=>todo._id===currentId):{title:'',content:''}
+    setTodo(currentTodo)
+  }, [currentId]);
+
   useEffect(() => {
     const fetchData = async () => {
       const result = await readTodos();
@@ -13,26 +20,45 @@ function App() {
     fetchData()
   }, []);
 
+  const clear = () => {
+    setCurrentId(0)
+    setTodo({ title: '', content: '' })
+  }
+
+  useEffect(() => {
+    const clearField = (e) => {
+      if(e.keyCode === 27){
+        clear()
+      }
+    }
+    window.addEventListener('keydown', clearField)
+    return () => window.removeEventListener('keydown', clearField)
+  },[])
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     const result = await createTodo(todo)
-    console.log(result)
+    setTodos([...todos, result])
+    // console.log(result)
   }
 
   return (
     <div className="container">
       <div className="row">
-        <pre>{JSON.stringify(todos)}</pre>
+        <pre>{JSON.stringify(todo)}</pre>
         <form className="col s12" onSubmit={onSubmitHandler}>
           <div className="row">
             <div className="input-field col s6">
               <i className="material-icons prefix">title</i>
-              <input id="icon_prefix" type="text" className="validate" onChange={e => setTodo({ ...todo, title: e.target.value })} />
+              <input id="icon_prefix" type="text" className="validate" 
+                onChange={e => setTodo({ ...todo, title: e.target.value })} 
+                value={todo.title}/>
               <label htmlFor="title">Title</label>
             </div>
             <div className="input-field col s6">
               <i className="material-icons prefix">description</i>
-              <input id="description" type="tel" className="validate" onChange={e => setTodo({ ...todo, content: e.target.value })} />
+              <input id="description" type="tel" className="validate" onChange={e => setTodo({ ...todo, content: e.target.value })} 
+              value={todo.content}/>
               <label htmlFor="Content">Content</label>
             </div>
           </div>
@@ -44,7 +70,9 @@ function App() {
           !todos ? <Preloader /> : todos.length > 0 ?
             <ul className="collection">
               {todos.map(item => (
-                <li key={item._id} className="collection-item">
+                <li key={item._id} 
+                className="collection-item"
+                onClick={() => setCurrentId(item._id)}>
                   <div>
                     <h5>{item.title}</h5>
                     <p> {item.content}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Preloader from "./components/Preloader";
-import { createTodo, readTodos } from "./functions";
+import { createTodo, readTodos, updateTodo } from "./functions";
 
 function App() {
   const [todo, setTodo] = useState({ title: '', content: '' });
@@ -18,7 +18,7 @@ function App() {
       setTodos(result)
     }
     fetchData()
-  }, []);
+  }, [currentId]);
 
   const clear = () => {
     setCurrentId(0)
@@ -37,8 +37,14 @@ function App() {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    const result = await createTodo(todo)
-    setTodos([...todos, result])
+    if(currentId === 0) {
+      const result = await createTodo(todo)
+      setTodos([...todos, result])
+      clear();
+    } else {
+      await updateTodo(currentId, todo)
+      clear();
+    }
     // console.log(result)
   }
 
